@@ -52,7 +52,6 @@ docker-compose up -d
 | Slack Bot    | -        | Slack integration   |
 | Ollama       | -        | Local LLM inference |
 | OpenCode CLI | -        | Code generation     |
-| GitHub CLI   | Optional | GitHub operations   |
 
 ## Features
 
@@ -90,9 +89,22 @@ SLACK_SIGNING_SECRET=...
 SLACK_APP_TOKEN=xapp-...
 OLLAMA_URL=http://localhost:11434
 MODEL=qwen2.5-coder:14b
+
+# Optional: Restrict GitHub access with PAT token
+# GITHUB_TOKEN=ghp_your_token_here
 ```
 
 See [`.env.example`](.env.example) for all options.
+
+### GitHub Integration
+
+The bot uses the GitHub REST API for repository operations. Configure with a Personal Access Token:
+
+1. Create a PAT token at [GitHub Settings](https://github.com/settings/tokens)
+2. Select required scopes: `public_repo` (read), `repo:write` (PR/issue creation), or `repo` (full access)
+3. Add to `.env`: `GITHUB_TOKEN=ghp_your_token_here`
+
+See [GitHub REST API Guide](docs/GITHUB_REST_API.md) for supported operations and [GitHub Token Guide](docs/GITHUB_TOKEN.md) for security best practices.
 
 ## Documentation
 

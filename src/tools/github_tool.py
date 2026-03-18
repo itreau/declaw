@@ -1,55 +1,48 @@
-import subprocess
-from typing import Tuple
-
 from langchain.tools import tool
 
-
-def execute_command(
-    command: list,
-    timeout: int = 120,
-) -> Tuple[str, bool]:
-    try:
-        result = subprocess.run(
-            command,
-            capture_output=True,
-            text=True,
-            timeout=timeout,
-        )
-        output = result.stdout + result.stderr
-        return output.strip(), result.returncode == 0
-    except subprocess.TimeoutExpired:
-        return "Command timed out", False
-    except Exception as e:
-        return f"Error executing command: {str(e)}", False
+from src.integrations.github_client import GitHubClient
+from src.models.config import Config
 
 
 @tool
 def github(command: str) -> str:
-    """Execute GitHub CLI (gh) commands for repository operations.
+    """Execute GitHub REST API commands for repository operations.
     
     Use this tool for:
-    - Cloning repositories
-    - Creating pull requests
+    - Listing repositories
+    - Viewing repository details
+    - Managing pull requests
     - Managing issues
-    - Viewing repository information
-    - Any other GitHub CLI operations
+    - Forking repositories
     
     Args:
-        command: The gh command to execute (e.g., "repo list", "pr create", "issue list")
+        command: Natural language command (e.g., "repo list", "pr create --owner OWNER --repo REPO")
     
     Returns:
         Command output or error message
         
     Examples:
         github("repo list")
-        github("pr create --title 'Fix bug' --body 'Description'")
-        github("issue list --state open")
+        github("repo list --owner microsoft")
+        github("repo view owner/repo")
+        github("pr list --owner owner --repo repo")
+        github("pr create --owner owner --repo repo --title 'Fix bug' --body 'Description' --head branch --base main")
+        github("issue list --owner owner --repo repo")
+        github("issue create --owner owner --repo repo --title 'Bug report' --body 'Details'")
+        github("repo fork owner/repo")
     """
-    args = command.split()
-    full_command = ["gh"] + args
-    output, success = execute_command(full_command)
+    config = Config.from_env()
     
-    if not success:
-        raise RuntimeError(f"GitHub CLI command failed: {output}")
+    if not config.github_token:
+        return ("Error: GITHUB_TOKEN not configured. "
+                "Add GITHUB_TOKEN to your .env file.\n"
+                "Get a token at: https://github.com/settings/tokens\n"
+                "Required scopes: 'repo:read' for read operations, 'repo:write' for PR/issue creation.")
     
-    return output
+    client = GitHubClient(token=config.github_token)
+    
+    try:
+        result = client.parse_and_execute(command)
+        return result
+    except Exception as e:
+        return f"Error executing GitHub command: {str(e)}"

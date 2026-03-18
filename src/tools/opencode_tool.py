@@ -1,6 +1,35 @@
+import subprocess
+from typing import Tuple
+
 from langchain.tools import tool
 
-from src.tools.github_tool import execute_command
+
+def execute_command(
+    command: list,
+    timeout: int = 120,
+) -> Tuple[str, bool]:
+    """Execute a command.
+    
+    Args:
+        command: List of command arguments
+        timeout: Timeout in seconds
+        
+    Returns:
+        Tuple of (output, success)
+    """
+    try:
+        result = subprocess.run(
+            command,
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+        output = result.stdout + result.stderr
+        return output.strip(), result.returncode == 0
+    except subprocess.TimeoutExpired:
+        return "Command timed out", False
+    except Exception as e:
+        return f"Error executing command: {str(e)}", False
 
 
 @tool

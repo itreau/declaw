@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  pyagent:
+    build: .
+    container_name: pyagent
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - OLLAMA_URL=http://host.docker.internal:11434
+    volumes:
+      - ./output:/app/output
+      - /opt/homebrew/bin/opencode:/usr/local/bin/opencode:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

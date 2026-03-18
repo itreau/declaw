@@ -18,6 +18,8 @@ class Config(BaseModel):
     max_output_length: int = Field(default=200, env="MAX_OUTPUT_LENGTH")
     output_dir: Path = Field(default=Path("./output"), env="OUTPUT_DIR")
     tool_timeout: int = Field(default=120, env="TOOL_TIMEOUT")
+    github_token: Optional[str] = Field(default=None, env="GITHUB_TOKEN")
+    workspace_dir: Optional[str] = Field(default=None, env="WORKSPACE_DIR")
 
     @classmethod
     def from_env(cls) -> "Config":
@@ -31,6 +33,8 @@ class Config(BaseModel):
             max_output_length=int(os.getenv("MAX_OUTPUT_LENGTH", "200")),
             output_dir=Path(os.getenv("OUTPUT_DIR", "./output")),
             tool_timeout=int(os.getenv("TOOL_TIMEOUT", "120")),
+            github_token=os.getenv("GITHUB_TOKEN"),
+            workspace_dir=os.getenv("WORKSPACE_DIR"),
         )
 
     def __init__(self, **data):

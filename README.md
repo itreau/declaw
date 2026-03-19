@@ -1,4 +1,4 @@
-# PyAgent - Free, Secure, Local Coding Agent for Slack
+# Declaw - Free, Secure, Local Coding Agent for Slack
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
@@ -6,7 +6,7 @@
 
 A Python Slack bot that integrates with Ollama (local LLM) and OpenCode CLI using LangChain orchestration. Supports both natural language intent inference and explicit slash commands.
 
-## Why PyAgent?
+## Why Declaw?
 
 - **✓ Free** - Uses local Ollama, no API costs or rate limits
 - **✓ Secure** - Runs entirely locally, your code never leaves your machine
@@ -19,8 +19,8 @@ A Python Slack bot that integrates with Ollama (local LLM) and OpenCode CLI usin
 
 ```bash
 # 1. Clone and install
-git clone https://github.com/your-username/pyagent.git
-cd pyagent
+git clone https://github.com/your-username/declaw.git
+cd declaw
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt

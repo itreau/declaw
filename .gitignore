@@ -24,3 +24,6 @@ agent-env
 
 # AI Agent data
 AGENTS.md
+
+# Workspace output
+output/workspace/

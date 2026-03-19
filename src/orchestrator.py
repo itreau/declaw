@@ -1,3 +1,4 @@
+import time
 from typing import TYPE_CHECKING
 
 from src.models.config import Config
@@ -26,24 +27,50 @@ class AgentOrchestrator:
         )
         message_ts = initial_response["ts"]
         
+        output_lines = []
+        last_update_time = 0
+        update_interval = 1.0
+        
+        def on_output(line: str):
+            nonlocal last_update_time
+            output_lines.append(line)
+            
+            current_time = time.time()
+            if current_time - last_update_time >= update_interval:
+                last_update_time = current_time
+                current_output = '\n'.join(output_lines[-50:])
+                slack_client.update_message(
+                    channel=message.channel,
+                    ts=message_ts,
+                    text=f"```\n{current_output}\n```",
+                )
+        
         try:
             system_context = self.prompt_manager.render_system_prompt(
                 user_message=message.text,
             )
             combined_prompt = f"{system_context}\n\nUser message: {message.text}"
-            output = opencode.invoke(combined_prompt)
             
-            handled_output = slack_client.handle_long_output(
-                output=output,
-                channel=message.channel,
-                thread_ts=message.thread_ts,
-            )
+            output = opencode.invoke(combined_prompt, on_output=on_output)
             
-            slack_client.update_message(
-                channel=message.channel,
-                ts=message_ts,
-                text=f"✅ Task completed!\n\n{handled_output}",
-            )
+            final_output = '\n'.join(output_lines[-200:])
+            if len(final_output) > self.config.max_output_length:
+                final_output = slack_client.handle_long_output(
+                    output=final_output,
+                    channel=message.channel,
+                    thread_ts=message.thread_ts,
+                )
+                slack_client.update_message(
+                    channel=message.channel,
+                    ts=message_ts,
+                    text=f"✅ Task completed!\n\n{final_output}",
+                )
+            else:
+                slack_client.update_message(
+                    channel=message.channel,
+                    ts=message_ts,
+                    text=f"✅ Task completed!\n\n```\n{final_output}\n```",
+                )
         
         except Exception as e:
             error_msg = str(e)

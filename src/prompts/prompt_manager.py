@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional, Tuple
+from typing import Optional
 
 from jinja2 import Environment, FileSystemLoader, Template
 
@@ -21,12 +21,7 @@ class PromptManager:
             self._system_prompt_template = self.env.get_template("system_prompt.j2")
         return self._system_prompt_template
     
-    def render_system_prompt(
-        self,
-        user_message: str,
-        slash_commands: Optional[List[Tuple[str, str]]] = None,
-    ) -> str:
+    def render_system_prompt(self, user_message: str) -> str:
         return self.system_prompt_template.render(
             user_message=user_message,
-            slash_commands=slash_commands or [],
         )

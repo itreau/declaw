@@ -1,8 +1,6 @@
 import subprocess
 from typing import Tuple
 
-from langchain.tools import tool
-
 
 def execute_command(
     command: list,
@@ -32,34 +30,25 @@ def execute_command(
         return f"Error executing command: {str(e)}", False
 
 
-@tool
-def opencode(prompt: str) -> str:
-    """Execute OpenCode CLI for code-related tasks.
+class OpenCodeTool:
+    """OpenCode CLI tool for handling user requests."""
     
-    Use this tool for:
-    - Code generation
-    - Code analysis and review
-    - Refactoring
-    - Debugging
-    - Writing tests
-    - Any other code-related operations
-    
-    Args:
-        prompt: The task description or prompt for OpenCode
-    
-    Returns:
-        OpenCode output or error message
+    def invoke(self, prompt: str) -> str:
+        """Execute OpenCode CLI with the given prompt.
         
-    Examples:
-        opencode("create a hello world program in Python")
-        opencode("review this code and suggest improvements")
-        opencode("fix the bug in the authentication module")
-        opencode("write unit tests for the calculator class")
-    """
-    command = ["opencode", prompt]
-    output, success = execute_command(command)
-    
-    if not success:
-        raise RuntimeError(f"OpenCode CLI command failed: {output}")
-    
-    return output
+        Args:
+            prompt: The user's request or task description
+        
+        Returns:
+            OpenCode output or error message
+        """
+        command = ["opencode", "run", prompt]
+        output, success = execute_command(command)
+        
+        if not success:
+            raise RuntimeError(f"OpenCode CLI command failed: {output}")
+        
+        return output
+
+
+opencode = OpenCodeTool()

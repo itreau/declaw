@@ -1,7 +1,6 @@
-import re
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING, Optional
 
 from slack_bolt import App
 from slack_bolt.adapter.socket_mode import SocketModeHandler
@@ -99,35 +98,6 @@ class SlackClient:
             return f"Output exceeded {self.config.max_output_length} characters. See attached file: {filename}"
         except Exception as e:
             return f"Output saved locally to {filepath} (Slack upload failed: {str(e)})"
-    
-    @staticmethod
-    def parse_slash_commands(message: str) -> List[Tuple[str, str]]:
-        commands = []
-        parts = re.split(r"(?=/git\s|/opencode\s)", message)
-        
-        for part in parts:
-            part = part.strip()
-            if not part:
-                continue
-            
-            if part.startswith("/git "):
-                command = "git"
-                args = part[5:].strip()
-                commands.append((command, args))
-            elif part.startswith("/opencode "):
-                command = "opencode"
-                args = part[10:].strip()
-                commands.append((command, args))
-            elif part.startswith("/git\n") or part.startswith("/git\t"):
-                command = "git"
-                args = part[4:].strip()
-                commands.append((command, args))
-            elif part.startswith("/opencode\n") or part.startswith("/opencode\t"):
-                command = "opencode"
-                args = part[9:].strip()
-                commands.append((command, args))
-        
-        return commands
     
     def start(self):
         handler = SocketModeHandler(self.app, self.config.slack_app_token)

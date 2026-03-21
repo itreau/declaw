@@ -55,15 +55,11 @@ class AgentOrchestrator:
             
             final_output = '\n'.join(output_lines[-200:])
             if len(final_output) > self.config.max_output_length:
-                final_output = slack_client.handle_long_output(
-                    output=final_output,
-                    channel=message.channel,
-                    thread_ts=message.thread_ts,
-                )
+                truncated_output = final_output[:self.config.max_output_length]
                 slack_client.update_message(
                     channel=message.channel,
                     ts=message_ts,
-                    text=f"✅ Task completed!\n\n{final_output}",
+                    text=f"✅ Task completed!\n\n```\n{truncated_output}\n...\n[Output truncated - {len(final_output)} total characters]\n```",
                 )
             else:
                 slack_client.update_message(
